@@ -3,7 +3,18 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Category, NewsItem } from "../types";
 import { fetchExternalNews } from "./newsApiService";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiInstance: GoogleGenAI | null = null;
+function getAI() {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey === "undefined") {
+      throw new Error("GEMINI_API_KEY is not configured");
+    }
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+}
+
 const USE_NEWS_API = import.meta.env.VITE_USE_NEWS_API === "true";
 
 // Cache/State Constants
@@ -103,6 +114,7 @@ export async function generateNewsFeed(): Promise<NewsItem[]> {
     - isRecent: boolean.
     RETORNE APENAS O ARRAY JSON.`;
 
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt,
@@ -180,6 +192,7 @@ export async function generateCategoryNews(category: Category): Promise<NewsItem
     - isRecent: boolean.
     RETORNE APENAS JSON ARRAY.`;
 
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt,
@@ -229,6 +242,7 @@ export async function generateCategoryNews(category: Category): Promise<NewsItem
 export async function summarizeNews(title: string, content: string): Promise<string> {
   if (isApiBlocked()) return "Resumo disponível em breve.";
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Resuma esta notícia de forma concisa e elegante em uma frase curta: Título: ${title}. Conteúdo: ${content}`,
@@ -266,6 +280,7 @@ export async function searchNews(query: string): Promise<NewsItem[]> {
     - isRecent: boolean.
     RETORNE APENAS JSON ARRAY.`;
 
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt,
@@ -315,6 +330,7 @@ export async function searchNews(query: string): Promise<NewsItem[]> {
 export async function getTrendingTopics(): Promise<string[]> {
   if (isApiBlocked()) return ["#JornalCaramelo", "#BrasilHoje", "#NoticiasAgora", "#EconomiaBR"];
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: "Liste 8 tópicos ou hashtags que seriam tendência agora no Brasil considerando eventos atuais. Apenas os nomes em formato JSON array de strings.",

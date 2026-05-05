@@ -1,0 +1,6 @@
+{
+  "name": "Jornal Caramelo",
+  "description": "Um portal de notícias sofisticado com Modo Foco imersivo, IA de atualização em tempo real (10 min) e painel dinâmico de tempo/clima.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": []
+}

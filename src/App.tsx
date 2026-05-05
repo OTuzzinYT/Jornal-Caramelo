@@ -61,14 +61,19 @@ export default function App() {
     }
 
     async function init() {
-      setLoading(true);
-      const [newsData, trendingData] = await Promise.all([
-        generateNewsFeed(),
-        getTrendingTopics()
-      ]);
-      setNews(newsData);
-      setTrending(trendingData);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const [newsData, trendingData] = await Promise.all([
+          generateNewsFeed(),
+          getTrendingTopics()
+        ]);
+        setNews(newsData);
+        setTrending(trendingData);
+      } catch (error) {
+        console.error("Erro na inicializacao:", error);
+      } finally {
+        setLoading(false);
+      }
     }
     init();
 
